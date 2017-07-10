@@ -12,7 +12,9 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    # TODO: put package requirements here
+    python-dotenv>=0.5.1,
+    pbkdf2,
+    pycrypto
 ]
 
 setup_requirements = [
@@ -28,7 +30,7 @@ test_requirements = [
 setup(
     name='pyncrypt',
     version='0.1.0',
-    description="Create, maintain, and use encrypted key-va",
+    description="Create, maintain, and use encrypted key-value stores",
     long_description=readme + '\n\n' + history,
     author="Mark Coggeshall",
     author_email='mark.coggeshall@gmail.com',
@@ -40,15 +42,15 @@ setup(
     zip_safe=False,
     keywords='pyncrypt',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
+        # "Programming Language :: Python :: 2",
+        # 'Programming Language :: Python :: 2.6',
+        # 'Programming Language :: Python :: 2.7',
+        # 'Programming Language :: Python :: 3',
+        # 'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
