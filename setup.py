@@ -12,9 +12,9 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    python-dotenv>=0.5.1,
-    pbkdf2,
-    pycrypto
+    'python-dotenv>=0.5.1',
+    'pbkdf2',
+    'pycrypto'
 ]
 
 setup_requirements = [
