@@ -12,7 +12,7 @@ To install pyncrypt, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install pyncrypt
+    $ pip install -U git+git://github.com/blueogive/pyncrypt#egg=pyncrypt
 
 This is the preferred method to install pyncrypt, as it will always install the most recent stable release.
 
