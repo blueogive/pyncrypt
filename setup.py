@@ -13,8 +13,8 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'python-dotenv>=0.5.1',
-    'pbkdf2',
-    'pycrypto'
+    'pbkdf2>=1.3',
+    'pycryptodome>=3.9.9'
 ]
 
 setup_requirements = [
@@ -51,8 +51,9 @@ setup(
         # 'Programming Language :: Python :: 2.7',
         # 'Programming Language :: Python :: 3',
         # 'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8'
     ],
     test_suite='tests',
     tests_require=test_requirements,

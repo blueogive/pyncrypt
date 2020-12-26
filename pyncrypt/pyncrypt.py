@@ -79,7 +79,8 @@ class KeyStore(object):
         # Pad and encrypt
         mplyr = self.block_size - (len(plaintext) % self.block_size)
         cipher = AES.new(key, AES.MODE_CFB, iv)
-        safesecret = cipher.encrypt(plaintext + (r' ' * mplyr))
+        payload = plaintext + (r' ' * mplyr)
+        safesecret = cipher.encrypt(payload.encode('utf-8'))
         return iv + safesecret
 
     def _decrypt(self, ciphertext, salt):
