@@ -29,7 +29,7 @@ test_requirements = [
 
 setup(
     name='pyncrypt',
-    version='0.2.0',
+    version='0.3.0',
     description="Create, maintain, and use encrypted key-value stores",
     long_description=readme + '\n\n' + history,
     author="Mark Coggeshall",
