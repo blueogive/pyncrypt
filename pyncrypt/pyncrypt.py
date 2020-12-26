@@ -3,18 +3,16 @@
 
 """Module for fetching/storing encrypted credentials from/to a local file."""
 
+import argparse
 import base64
 import dotenv
 import os
+import pickle
 
 from getpass import getpass
 from pbkdf2 import PBKDF2
 from Crypto.Cipher import AES
 from Crypto import Random
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 
 class KeyStore(object):
@@ -29,27 +27,26 @@ class KeyStore(object):
         NULL salt_seed is useful, therefore, if you want to create a KeyStore
         that is only useful for the duration of the current Python process
         (i.e., a one-time-use vault)."""
-        if (not salt_seed or len(salt_seed) == 0 or
-                isinstance(salt_seed, str) is False):
+        if not salt_seed or len(salt_seed) == 0 or isinstance(salt_seed, str) is False:
             self.salt_seed = self._urand2str(8)
         else:
             self.salt_seed = salt_seed
-        self.passphrase_file = kwargs.get('passphrase_file') or '.secrets_p'
-        self.secretsdb_file = kwargs.get('secretsdb_file') or '.secrets'
+        self.passphrase_file = kwargs.get("passphrase_file") or ".secrets_p"
+        self.secretsdb_file = kwargs.get("secretsdb_file") or ".secrets"
         # By default, secrets files can be read/written by user executing
         # the script, read by the user's group, and are inaccessible to world.
-        self.file_perm = kwargs.get('file_perm') or 0o640
-        self.passphrase_size = kwargs.get('passphrase_size') or 64
-        self.key_size = kwargs.get('key_size') or 32
-        self.block_size = kwargs.get('block_size') or 16
-        self.iv_size = kwargs.get('iv_size') or 16
-        self.salt_size = kwargs.get('salt_size') or 8
+        self.file_perm = kwargs.get("file_perm") or 0o640
+        self.passphrase_size = kwargs.get("passphrase_size") or 64
+        self.key_size = kwargs.get("key_size") or 32
+        self.block_size = kwargs.get("block_size") or 16
+        self.iv_size = kwargs.get("iv_size") or 16
+        self.salt_size = kwargs.get("salt_size") or 8
 
-    def _dcode(self, bstring, encoding='utf-8'):
+    def _dcode(self, bstring, encoding="utf-8"):
         """Convert base64 bytes to UTF-8."""
         return base64.b64encode(bstring).decode(encoding)
 
-    def _urand2str(self, nbytes, encoding='utf-8'):
+    def _urand2str(self, nbytes, encoding="utf-8"):
         """Return random bytes from cyptographically random pool."""
         phrase = Random.new().read(nbytes)  # Random bytes
         while len(phrase) % 3 != 0:
@@ -69,8 +66,8 @@ class KeyStore(object):
 
         NB: Strips trailing whitespace frome plaintext!
         """
-        if hasattr(plaintext, 'decode'):
-            raise TypeError('Please pass a string value, not bytes.')
+        if hasattr(plaintext, "decode"):
+            raise TypeError("Please pass a string value, not bytes.")
         # Initialize cipher randomly
         iv = Random.new().read(self.iv_size)
         passphrase = self._getsetphrase()
@@ -79,8 +76,8 @@ class KeyStore(object):
         # Pad and encrypt
         mplyr = self.block_size - (len(plaintext) % self.block_size)
         cipher = AES.new(key, AES.MODE_CFB, iv)
-        payload = plaintext + (r' ' * mplyr)
-        safesecret = cipher.encrypt(payload.encode('utf-8'))
+        payload = plaintext + (r" " * mplyr)
+        safesecret = cipher.encrypt(payload.encode("utf-8"))
         return iv + safesecret
 
     def _decrypt(self, ciphertext, salt):
@@ -94,25 +91,27 @@ class KeyStore(object):
         # Reconstruct cipher (IV need not be identical to encrypt version)
         iv = Random.new().read(self.iv_size)
         cipher = AES.new(key, AES.MODE_CFB, iv)
-        cleartext = cipher.decrypt(ciphertext)[len(iv):]
+        cleartext = cipher.decrypt(ciphertext)[len(iv) :]
         try:
-            retval = cleartext.decode().rstrip(r' ')
+            retval = cleartext.decode().rstrip(r" ")
         except UnicodeDecodeError:
-            emsg = ('Value cannot be decoded. The passphrase used to'
-                    ' initiate the KeyStore has likely changed. Correct'
-                    ' the passphrase to its original value or delete the'
-                    ' KeyStore and store new values within it.')
+            emsg = (
+                "Value cannot be decoded. The passphrase used to"
+                " initiate the KeyStore has likely changed. Correct"
+                " the passphrase to its original value or delete the"
+                " KeyStore and store new values within it."
+            )
             raise ValueError(emsg)
         return retval
 
     def _getphrase(self):
         """Getter for passphrase."""
-        with open(self.passphrase_file, 'r') as fle:
+        with open(self.passphrase_file, "r") as fle:
             return fle.read()
 
     def _setphrase(self):
         """Setter for passphrase."""
-        with open(self.passphrase_file, 'w') as fle:
+        with open(self.passphrase_file, "w") as fle:
             os.chmod(self.passphrase_file, self.file_perm)
             fle.write(self._urand2str(self.passphrase_size))
         try:
@@ -136,7 +135,7 @@ class KeyStore(object):
     def _getsetdb(self):
         """Load or create secrets database."""
         try:
-            with open(self.secretsdb_file, 'rb') as fle:
+            with open(self.secretsdb_file, "rb") as fle:
                 dbs = pickle.load(fle)
         except (IOError, EOFError, TypeError):
             dbs = {}
@@ -144,7 +143,7 @@ class KeyStore(object):
         return dbs
 
     def _pickledb(self, thedict):
-        with open(self.secretsdb_file, 'wb') as fle:
+        with open(self.secretsdb_file, "wb") as fle:
             os.chmod(self.secretsdb_file, self.file_perm)
             pickle.dump(thedict, fle)
         return None
@@ -208,19 +207,26 @@ def main(vault, keyname):
     return vault.require(keyname)
 
 
-if __name__ == '__main__':
-    import argparse
+if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--env', default=dotenv.find_dotenv(), dest='env',
-                   help='Environment file (default: %(default)s)')
-    p.add_argument('--passphrase_varname', default='PASSPHRASE',
-                   dest='passphrase',
-                   help='Name of variable in environment file defining ' +
-                        'passphrase for the encryption algo ' +
-                        '(default: %(default)s).')
-    p.add_argument(dest='key',
-                   help='Name of key for which the decrypted value should ' +
-                        'be returned.')
+    p.add_argument(
+        "--env",
+        default=dotenv.find_dotenv(),
+        dest="env",
+        help="Environment file (default: %(default)s)",
+    )
+    p.add_argument(
+        "--passphrase_varname",
+        default="PASSPHRASE",
+        dest="passphrase",
+        help="Name of variable in environment file defining "
+        + "passphrase for the encryption algo "
+        + "(default: %(default)s).",
+    )
+    p.add_argument(
+        dest="key",
+        help="Name of key for which the decrypted value should " + "be returned.",
+    )
     cliargs = p.parse_args()
     dotenv.load_dotenv(cliargs.env)
     VLT = KeyStore(os.environ[cliargs.passphrase])

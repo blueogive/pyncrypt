@@ -5,5 +5,5 @@
 from pyncrypt.pyncrypt import KeyStore
 
 __author__ = """Mark Coggeshall"""
-__email__ = 'mark.coggeshall@gmail.com'
+__email__ = "mark.coggeshall@gmail.com"
 __version__ = '0.2.0'
